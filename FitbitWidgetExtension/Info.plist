@@ -27,5 +27,11 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+	<key>GoogleHealthOAuthClientID</key>
+	<string>$(GOOGLE_HEALTH_OAUTH_CLIENT_ID)</string>
+	<key>GoogleHealthOAuthClientSecret</key>
+	<string>$(GOOGLE_HEALTH_OAUTH_CLIENT_SECRET)</string>
+	<key>SharedKeychainAccessGroup</key>
+	<string>$(AppIdentifierPrefix)com.yahsiu.FitbitWidget.shared</string>
 </dict>
 </plist>

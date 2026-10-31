@@ -13,6 +13,47 @@
 		AA0020040000000000000004 /* MockWidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010060000000000000006 /* MockWidgetData.swift */; };
 		AA0020050000000000000005 /* FitbitHealthWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010070000000000000007 /* FitbitHealthWidget.swift */; };
 		AA0020060000000000000006 /* FitbitWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000070000000000000007 /* FitbitWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA0020070000000000000007 /* WidgetDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010100000000000000010 /* WidgetDomain.swift */; };
+		AA0020080000000000000008 /* WidgetDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010100000000000000010 /* WidgetDomain.swift */; };
+		AA0020090000000000000009 /* WidgetDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010100000000000000010 /* WidgetDomain.swift */; };
+		AA0020100000000000000010 /* WidgetDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010110000000000000011 /* WidgetDomainTests.swift */; };
+		AA0020110000000000000011 /* SharedWidgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010120000000000000012 /* SharedWidgetStore.swift */; };
+		AA0020120000000000000012 /* SharedWidgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010120000000000000012 /* SharedWidgetStore.swift */; };
+		AA0020130000000000000013 /* SharedWidgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010120000000000000012 /* SharedWidgetStore.swift */; };
+		AA0020140000000000000014 /* WidgetTimelineSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010130000000000000013 /* WidgetTimelineSchedule.swift */; };
+		AA0020150000000000000015 /* WidgetTimelineSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010130000000000000013 /* WidgetTimelineSchedule.swift */; };
+		AA0020160000000000000016 /* WidgetTimelineSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010130000000000000013 /* WidgetTimelineSchedule.swift */; };
+		AA0020170000000000000017 /* Build2MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010140000000000000014 /* Build2MockData.swift */; };
+		AA0020180000000000000018 /* Build2MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010140000000000000014 /* Build2MockData.swift */; };
+		AA0020190000000000000019 /* Build2MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010140000000000000014 /* Build2MockData.swift */; };
+		AA0020200000000000000020 /* SharedKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010150000000000000015 /* SharedKeychain.swift */; };
+		AA0020210000000000000021 /* SharedKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010150000000000000015 /* SharedKeychain.swift */; };
+		AA0020220000000000000022 /* SharedKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010150000000000000015 /* SharedKeychain.swift */; };
+		AA0020230000000000000023 /* Build2SharedStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010160000000000000016 /* Build2SharedStateTests.swift */; };
+		AA0020240000000000000024 /* GoogleHealthOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010170000000000000017 /* GoogleHealthOAuth.swift */; };
+		AA0020250000000000000025 /* GoogleHealthOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010170000000000000017 /* GoogleHealthOAuth.swift */; };
+		AA0020260000000000000026 /* GoogleHealthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010180000000000000018 /* GoogleHealthClient.swift */; };
+		AA0020270000000000000027 /* GoogleHealthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010180000000000000018 /* GoogleHealthClient.swift */; };
+		AA0020280000000000000028 /* CompanionAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010190000000000000019 /* CompanionAppModel.swift */; };
+		AA0020290000000000000029 /* Build3GoogleHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010200000000000000020 /* Build3GoogleHealthTests.swift */; };
+		AA0020300000000000000030 /* CompanionAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010190000000000000019 /* CompanionAppModel.swift */; };
+		AA0020310000000000000031 /* HealthSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010220000000000000022 /* HealthSync.swift */; };
+		AA0020320000000000000032 /* HealthSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010220000000000000022 /* HealthSync.swift */; };
+		AA0020330000000000000033 /* HealthSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010220000000000000022 /* HealthSync.swift */; };
+		AA0020340000000000000034 /* GoogleHealthOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010170000000000000017 /* GoogleHealthOAuth.swift */; };
+		AA0020350000000000000035 /* GoogleHealthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010180000000000000018 /* GoogleHealthClient.swift */; };
+		AA0020360000000000000036 /* Build4SyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010230000000000000023 /* Build4SyncTests.swift */; };
+		AA0020370000000000000037 /* AppLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010240000000000000024 /* AppLifecycle.swift */; };
+		AA0020380000000000000038 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010250000000000000025 /* AppPreferences.swift */; };
+		AA0020390000000000000039 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010250000000000000025 /* AppPreferences.swift */; };
+		AA0020400000000000000040 /* MenuBarHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010260000000000000026 /* MenuBarHealthView.swift */; };
+		AA0020410000000000000041 /* SharedStateObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010270000000000000027 /* SharedStateObserver.swift */; };
+		AA0020420000000000000042 /* SharedStateObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010270000000000000027 /* SharedStateObserver.swift */; };
+		AA0020430000000000000043 /* HealthPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010280000000000000028 /* HealthPresentation.swift */; };
+		AA0020440000000000000044 /* HealthPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010280000000000000028 /* HealthPresentation.swift */; };
+		AA0020450000000000000045 /* HealthPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010280000000000000028 /* HealthPresentation.swift */; };
+		AA0020460000000000000046 /* Build45MenuBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010290000000000000029 /* Build45MenuBarTests.swift */; };
+		AA0020470000000000000047 /* AppLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010240000000000000024 /* AppLifecycle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +83,7 @@
 /* Begin PBXFileReference section */
 		AA0000060000000000000006 /* FitbitWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitbitWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000070000000000000007 /* FitbitWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FitbitWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000080000000000000008 /* FitbitWidgetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitbitWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0010010000000000000001 /* FitbitWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitbitWidgetApp.swift; sourceTree = "<group>"; };
 		AA0010020000000000000002 /* CompanionAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionAppView.swift; sourceTree = "<group>"; };
 		AA0010030000000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -51,6 +93,26 @@
 		AA0010070000000000000007 /* FitbitHealthWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitbitHealthWidget.swift; sourceTree = "<group>"; };
 		AA0010080000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA0010090000000000000009 /* FitbitWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FitbitWidgetExtension.entitlements; sourceTree = "<group>"; };
+		AA0010100000000000000010 /* WidgetDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDomain.swift; sourceTree = "<group>"; };
+		AA0010110000000000000011 /* WidgetDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDomainTests.swift; sourceTree = "<group>"; };
+		AA0010120000000000000012 /* SharedWidgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStore.swift; sourceTree = "<group>"; };
+		AA0010130000000000000013 /* WidgetTimelineSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetTimelineSchedule.swift; sourceTree = "<group>"; };
+		AA0010140000000000000014 /* Build2MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Build2MockData.swift; sourceTree = "<group>"; };
+		AA0010150000000000000015 /* SharedKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedKeychain.swift; sourceTree = "<group>"; };
+		AA0010160000000000000016 /* Build2SharedStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Build2SharedStateTests.swift; sourceTree = "<group>"; };
+		AA0010170000000000000017 /* GoogleHealthOAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHealthOAuth.swift; sourceTree = "<group>"; };
+		AA0010180000000000000018 /* GoogleHealthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHealthClient.swift; sourceTree = "<group>"; };
+		AA0010190000000000000019 /* CompanionAppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionAppModel.swift; sourceTree = "<group>"; };
+		AA0010200000000000000020 /* Build3GoogleHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Build3GoogleHealthTests.swift; sourceTree = "<group>"; };
+		AA0010210000000000000021 /* GoogleHealth.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/GoogleHealth.xcconfig; sourceTree = SOURCE_ROOT; };
+		AA0010220000000000000022 /* HealthSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthSync.swift; sourceTree = "<group>"; };
+		AA0010230000000000000023 /* Build4SyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Build4SyncTests.swift; sourceTree = "<group>"; };
+		AA0010240000000000000024 /* AppLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLifecycle.swift; sourceTree = "<group>"; };
+		AA0010250000000000000025 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		AA0010260000000000000026 /* MenuBarHealthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarHealthView.swift; sourceTree = "<group>"; };
+		AA0010270000000000000027 /* SharedStateObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStateObserver.swift; sourceTree = "<group>"; };
+		AA0010280000000000000028 /* HealthPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthPresentation.swift; sourceTree = "<group>"; };
+		AA0010290000000000000029 /* Build45MenuBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Build45MenuBarTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +130,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0040090000000000000009 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -76,7 +145,10 @@
 			children = (
 				AA0000040000000000000004 /* FitbitWidgetApp */,
 				AA0000050000000000000005 /* FitbitWidgetExtension */,
+				AA0000090000000000000009 /* Shared */,
+				AA0000100000000000000010 /* FitbitWidgetTests */,
 				AA0000030000000000000003 /* Products */,
+				AA0010210000000000000021 /* GoogleHealth.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -85,6 +157,7 @@
 			children = (
 				AA0000060000000000000006 /* FitbitWidget.app */,
 				AA0000070000000000000007 /* FitbitWidgetExtension.appex */,
+				AA0000080000000000000008 /* FitbitWidgetTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,8 +165,15 @@
 		AA0000040000000000000004 /* FitbitWidgetApp */ = {
 			isa = PBXGroup;
 			children = (
+				AA0010270000000000000027 /* SharedStateObserver.swift */,
+				AA0010260000000000000026 /* MenuBarHealthView.swift */,
+				AA0010250000000000000025 /* AppPreferences.swift */,
+				AA0010240000000000000024 /* AppLifecycle.swift */,
 				AA0010010000000000000001 /* FitbitWidgetApp.swift */,
 				AA0010020000000000000002 /* CompanionAppView.swift */,
+				AA0010190000000000000019 /* CompanionAppModel.swift */,
+				AA0010170000000000000017 /* GoogleHealthOAuth.swift */,
+				AA0010180000000000000018 /* GoogleHealthClient.swift */,
 				AA0010030000000000000003 /* Info.plist */,
 				AA0010040000000000000004 /* FitbitWidgetApp.entitlements */,
 			);
@@ -110,6 +190,32 @@
 				AA0010090000000000000009 /* FitbitWidgetExtension.entitlements */,
 			);
 			path = FitbitWidgetExtension;
+			sourceTree = "<group>";
+		};
+		AA0000090000000000000009 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				AA0010280000000000000028 /* HealthPresentation.swift */,
+				AA0010100000000000000010 /* WidgetDomain.swift */,
+				AA0010120000000000000012 /* SharedWidgetStore.swift */,
+				AA0010130000000000000013 /* WidgetTimelineSchedule.swift */,
+				AA0010140000000000000014 /* Build2MockData.swift */,
+				AA0010150000000000000015 /* SharedKeychain.swift */,
+				AA0010220000000000000022 /* HealthSync.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		AA0000100000000000000010 /* FitbitWidgetTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA0010290000000000000029 /* Build45MenuBarTests.swift */,
+				AA0010110000000000000011 /* WidgetDomainTests.swift */,
+				AA0010160000000000000016 /* Build2SharedStateTests.swift */,
+				AA0010200000000000000020 /* Build3GoogleHealthTests.swift */,
+				AA0010230000000000000023 /* Build4SyncTests.swift */,
+			);
+			path = FitbitWidgetTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,6 +257,23 @@
 			productReference = AA0000070000000000000007 /* FitbitWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		AA0030030000000000000003 /* FitbitWidgetTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0060040000000000000004 /* Build configuration list for PBXNativeTarget "FitbitWidgetTests" */;
+			buildPhases = (
+				AA0040080000000000000008 /* Sources */,
+				AA0040090000000000000009 /* Frameworks */,
+				AA0040100000000000000010 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FitbitWidgetTests;
+			productName = FitbitWidgetTests;
+			productReference = AA0000080000000000000008 /* FitbitWidgetTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +307,7 @@
 			targets = (
 				AA0030010000000000000001 /* FitbitWidget */,
 				AA0030020000000000000002 /* FitbitWidgetExtension */,
+				AA0030030000000000000003 /* FitbitWidgetTests */,
 			);
 		};
 /* End PBXProject section */
@@ -203,6 +327,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0040100000000000000010 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -210,8 +341,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0020430000000000000043 /* HealthPresentation.swift in Sources */,
+				AA0020410000000000000041 /* SharedStateObserver.swift in Sources */,
+				AA0020400000000000000040 /* MenuBarHealthView.swift in Sources */,
+				AA0020380000000000000038 /* AppPreferences.swift in Sources */,
+				AA0020370000000000000037 /* AppLifecycle.swift in Sources */,
 				AA0020010000000000000001 /* FitbitWidgetApp.swift in Sources */,
 				AA0020020000000000000002 /* CompanionAppView.swift in Sources */,
+				AA0020280000000000000028 /* CompanionAppModel.swift in Sources */,
+				AA0020240000000000000024 /* GoogleHealthOAuth.swift in Sources */,
+				AA0020260000000000000026 /* GoogleHealthClient.swift in Sources */,
+				AA0020070000000000000007 /* WidgetDomain.swift in Sources */,
+				AA0020110000000000000011 /* SharedWidgetStore.swift in Sources */,
+				AA0020140000000000000014 /* WidgetTimelineSchedule.swift in Sources */,
+				AA0020170000000000000017 /* Build2MockData.swift in Sources */,
+				AA0020200000000000000020 /* SharedKeychain.swift in Sources */,
+				AA0020310000000000000031 /* HealthSync.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,9 +364,43 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0020440000000000000044 /* HealthPresentation.swift in Sources */,
 				AA0020030000000000000003 /* FitbitWidgetBundle.swift in Sources */,
 				AA0020040000000000000004 /* MockWidgetData.swift in Sources */,
 				AA0020050000000000000005 /* FitbitHealthWidget.swift in Sources */,
+				AA0020080000000000000008 /* WidgetDomain.swift in Sources */,
+				AA0020120000000000000012 /* SharedWidgetStore.swift in Sources */,
+				AA0020150000000000000015 /* WidgetTimelineSchedule.swift in Sources */,
+				AA0020180000000000000018 /* Build2MockData.swift in Sources */,
+				AA0020210000000000000021 /* SharedKeychain.swift in Sources */,
+				AA0020320000000000000032 /* HealthSync.swift in Sources */,
+				AA0020340000000000000034 /* GoogleHealthOAuth.swift in Sources */,
+				AA0020350000000000000035 /* GoogleHealthClient.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0040080000000000000008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0020470000000000000047 /* AppLifecycle.swift in Sources */,
+				AA0020460000000000000046 /* Build45MenuBarTests.swift in Sources */,
+				AA0020450000000000000045 /* HealthPresentation.swift in Sources */,
+				AA0020420000000000000042 /* SharedStateObserver.swift in Sources */,
+				AA0020390000000000000039 /* AppPreferences.swift in Sources */,
+				AA0020250000000000000025 /* GoogleHealthOAuth.swift in Sources */,
+				AA0020270000000000000027 /* GoogleHealthClient.swift in Sources */,
+				AA0020290000000000000029 /* Build3GoogleHealthTests.swift in Sources */,
+				AA0020300000000000000030 /* CompanionAppModel.swift in Sources */,
+				AA0020090000000000000009 /* WidgetDomain.swift in Sources */,
+				AA0020100000000000000010 /* WidgetDomainTests.swift in Sources */,
+				AA0020130000000000000013 /* SharedWidgetStore.swift in Sources */,
+				AA0020160000000000000016 /* WidgetTimelineSchedule.swift in Sources */,
+				AA0020190000000000000019 /* Build2MockData.swift in Sources */,
+				AA0020220000000000000022 /* SharedKeychain.swift in Sources */,
+				AA0020230000000000000023 /* Build2SharedStateTests.swift in Sources */,
+				AA0020330000000000000033 /* HealthSync.swift in Sources */,
+				AA0020360000000000000036 /* Build4SyncTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,67 +509,78 @@
 		};
 		AA0070030000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0010210000000000000021 /* GoogleHealth.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = FitbitWidgetApp/FitbitWidgetApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Z42MMVQ74C;
 				ENABLE_APP_SANDBOX = YES;
+				REGISTER_APP_GROUPS = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
+
 				INFOPLIST_FILE = FitbitWidgetApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yahsiu.FitbitWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
 		AA0070040000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0010210000000000000021 /* GoogleHealth.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = FitbitWidgetApp/FitbitWidgetApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Z42MMVQ74C;
 				ENABLE_APP_SANDBOX = YES;
+				REGISTER_APP_GROUPS = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
+
 				INFOPLIST_FILE = FitbitWidgetApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yahsiu.FitbitWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
 		AA0070050000000000000005 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0010210000000000000021 /* GoogleHealth.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = FitbitWidgetExtension/FitbitWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Z42MMVQ74C;
 				ENABLE_APP_SANDBOX = YES;
+				REGISTER_APP_GROUPS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FitbitWidgetExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -398,7 +588,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yahsiu.FitbitWidget.WidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -406,19 +596,23 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXTENSION";
 			};
 			name = Debug;
 		};
 		AA0070060000000000000006 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0010210000000000000021 /* GoogleHealth.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = FitbitWidgetExtension/FitbitWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Z42MMVQ74C;
 				ENABLE_APP_SANDBOX = YES;
+				REGISTER_APP_GROUPS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FitbitWidgetExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -426,7 +620,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yahsiu.FitbitWidget.WidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -434,7 +628,42 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXTENSION";
+			};
+			name = Release;
+		};
+		AA0070070000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z42MMVQ74C;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yahsiu.FitbitWidgetTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AA0070080000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z42MMVQ74C;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yahsiu.FitbitWidgetTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -464,6 +693,15 @@
 			buildConfigurations = (
 				AA0070050000000000000005 /* Debug */,
 				AA0070060000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0060040000000000000004 /* Build configuration list for PBXNativeTarget "FitbitWidgetTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0070070000000000000007 /* Debug */,
+				AA0070080000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -35,5 +35,11 @@
 	<string></string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>GoogleHealthOAuthClientSecret</key>
+	<string>$(GOOGLE_HEALTH_OAUTH_CLIENT_SECRET)</string>
+	<key>GoogleHealthOAuthClientID</key>
+	<string>$(GOOGLE_HEALTH_OAUTH_CLIENT_ID)</string>
+	<key>SharedKeychainAccessGroup</key>
+	<string>$(AppIdentifierPrefix)com.yahsiu.FitbitWidget.shared</string>
 </dict>
 </plist>

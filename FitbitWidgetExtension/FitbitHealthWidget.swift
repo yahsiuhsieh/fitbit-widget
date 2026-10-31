@@ -2,25 +2,60 @@ import AppKit
 import SwiftUI
 import WidgetKit
 
-struct MockTimelineProvider: TimelineProvider {
+struct SharedTimelineProvider: TimelineProvider {
+    private let store: SharedWidgetStore?
+
+    init(store: SharedWidgetStore? = SharedWidgetStore()) {
+        self.store = store
+    }
+
     func placeholder(in context: Context) -> FitbitWidgetEntry {
         .normal
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FitbitWidgetEntry) -> Void) {
-        completion(.normal)
+        guard !context.isPreview else {
+            completion(.normal)
+            return
+        }
+
+        completion(FitbitWidgetEntry(date: Date(), state: store?.load() ?? .initial))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<FitbitWidgetEntry>) -> Void) {
-        completion(Timeline(entries: [.normal], policy: .never))
+        if context.isPreview {
+            completion(Timeline(entries: [.normal], policy: .never))
+            return
+        }
+        let completion = TimelineCompletion(completion)
+        Task { @MainActor in
+            let result = await HealthSync.shared.refresh(.widget)
+            let now = Date()
+            let schedule = WidgetTimelineSchedule.make(
+                state: store?.load() ?? result.state,
+                startingAt: now,
+                calendar: SharedConfiguration.localCalendar
+            )
+            let entries = schedule.items.map { FitbitWidgetEntry(date: $0.date, state: $0.state) }
+            let canRetrySoon = result.state.sync.nextAttempt == nil && !result.state.sync.reconnectRequired
+            let refresh = canRetrySoon && (result.coalesced || result.failure != nil)
+                ? min(schedule.refreshDate, now.addingTimeInterval(300)) : schedule.refreshDate
+            completion.call(Timeline(entries: entries, policy: .after(refresh)))
+        }
     }
 }
 
+// WidgetKit's completion is invoked once on MainActor after the bounded refresh.
+private final class TimelineCompletion: @unchecked Sendable {
+    let call: (Timeline<FitbitWidgetEntry>) -> Void
+    init(_ call: @escaping (Timeline<FitbitWidgetEntry>) -> Void) { self.call = call }
+}
+
 struct FitbitHealthWidget: Widget {
-    static let kind = "FitbitHealthWidgetLarge"
+    static let kind = SharedConfiguration.widgetKind
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: Self.kind, provider: MockTimelineProvider()) { entry in
+        StaticConfiguration(kind: Self.kind, provider: SharedTimelineProvider()) { entry in
             FitbitWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Fitbit Widget")
@@ -35,10 +70,11 @@ struct FitbitWidgetEntryView: View {
 
     var body: some View {
         Group {
-            if entry.isInitial {
-                InitialWidgetView(message: entry.initialMessage ?? "Open the App to Get Started")
-            } else {
-                populatedContent
+            switch entry.state.content {
+            case let .data(data):
+                populatedContent(data)
+            case .unconnected, .accountNotLinked, .initialSyncFailed:
+                InitialWidgetView(content: entry.state.content)
             }
         }
         .padding(18)
@@ -48,16 +84,25 @@ struct FitbitWidgetEntryView: View {
         .widgetURL(URL(string: "fitbitwidget://status"))
     }
 
-    private var populatedContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
+    private func populatedContent(_ data: WidgetData) -> some View {
+        let permitted = entry.state.hasVerifiedIdentity
+            ? data.snapshot.applyingPermissions(entry.state.permissions) : data.snapshot
+        let snapshot = permitted.resolved(at: entry.date, calendar: SharedConfiguration.localCalendar)
+
+        return VStack(alignment: .leading, spacing: 10) {
             header
 
-            WidgetMetricLayout(entry: entry)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            WidgetMetricLayout(
+                selectedMetrics: entry.state.selection.metrics,
+                snapshot: snapshot,
+                evaluationDate: entry.date
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             WidgetFooter(
-                status: entry.syncStatus,
-                lastSuccessfulUpdate: entry.lastSuccessfulUpdate
+                issue: data.lastSyncIssue,
+                isStale: snapshot.isStale,
+                lastSuccessfulUpdate: snapshot.lastSuccessfulUpdate
             )
         }
     }
@@ -87,27 +132,30 @@ struct FitbitWidgetEntryView: View {
 }
 
 private struct WidgetMetricLayout: View {
-    let entry: FitbitWidgetEntry
+    let selectedMetrics: [MetricKind]
+    let snapshot: ResolvedHealthSnapshot
+    let evaluationDate: Date
 
     private var showsSleep: Bool {
-        entry.selectedMetrics.contains(.sleep)
+        selectedMetrics.contains(.sleep)
     }
 
     private var compactMetrics: [MetricKind] {
-        entry.selectedMetrics.filter { $0 != .sleep }
+        selectedMetrics.filter { $0 != .sleep }
     }
 
     var body: some View {
         VStack(spacing: 10) {
             if showsSleep {
-                SleepCard(snapshot: entry.sleep)
+                SleepCard(state: snapshot.sleep)
                     .frame(maxWidth: .infinity)
             }
 
             if !compactMetrics.isEmpty {
                 CompactMetricRow(
                     metrics: compactMetrics,
-                    entry: entry,
+                    snapshot: snapshot,
+                    evaluationDate: evaluationDate,
                     emphasizesMetrics: !showsSleep
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -117,7 +165,7 @@ private struct WidgetMetricLayout: View {
 }
 
 private struct SleepCard: View {
-    let snapshot: SleepSnapshot?
+    let state: MetricState<SleepSession>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -125,29 +173,14 @@ private struct SleepCard: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            if let snapshot {
-                HStack(alignment: .firstTextBaseline, spacing: 10) {
-                    Text(durationText(snapshot.totalAsleepMinutes))
-                        .font(.system(size: 27, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.78)
-
-                    Spacer(minLength: 4)
-
-                    HStack(spacing: 6) {
-                        Text(snapshot.bedtime, style: .time)
-                        Image(systemName: "arrow.right")
-                            .font(.caption.weight(.semibold))
-                        Text(snapshot.wakeTime, style: .time)
-                    }
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                }
-
-                SleepStageContent(snapshot: snapshot)
-            } else {
+            switch state {
+            case let .value(session):
+                sessionContent(session)
+            case .noData:
                 MissingReadingView(message: "No Recent Data")
+                    .frame(maxHeight: .infinity)
+            case .permissionRequired:
+                MissingReadingView(message: "Permission Required")
                     .frame(maxHeight: .infinity)
             }
         }
@@ -160,98 +193,36 @@ private struct SleepCard: View {
         .accessibilityElement(children: .contain)
     }
 
-    private func durationText(_ minutes: Int) -> String {
-        let hours = minutes / 60
-        let remainingMinutes = minutes % 60
-        return "\(hours) hr \(remainingMinutes) min"
-    }
-}
+    private func sessionContent(_ session: SleepSession) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(durationText(session.minutesAsleep))
+                    .font(.system(size: 27, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.78)
 
-private struct SleepStageContent: View {
-    let snapshot: SleepSnapshot
+                Spacer(minLength: 4)
 
-    var body: some View {
-        switch snapshot.stageStatus {
-        case .available:
-            VStack(alignment: .leading, spacing: 8) {
-                SleepStageBar(stages: snapshot.stages)
-
-                HStack(spacing: 8) {
-                    ForEach(snapshot.stages) { stage in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 5) {
-                                Circle()
-                                    .fill(stage.kind.tint)
-                                    .frame(width: 7, height: 7)
-                                Text(stage.kind.title)
-                                    .font(.caption2.weight(.medium))
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Text(stageDuration(stage.minutes))
-                                .font(.caption.weight(.semibold))
-                                .monospacedDigit()
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                HStack(spacing: 6) {
+                    Text(timeText(session.start))
+                    Image(systemName: "arrow.right")
+                        .font(.caption.weight(.semibold))
+                    Text(timeText(session.end))
                 }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
             }
 
-        case .processing:
-            stageUnavailableLabel("Sleep stages are processing", symbol: "clock")
-
-        case .unavailable:
-            stageUnavailableLabel("Sleep stages unavailable", symbol: "minus.circle")
+            SleepStageContent(state: session.stages)
         }
-    }
-
-    private func stageDuration(_ minutes: Int) -> String {
-        guard minutes >= 60 else { return "\(minutes) min" }
-        return "\(minutes / 60) hr \(minutes % 60) min"
-    }
-
-    private func stageUnavailableLabel(_ title: String, symbol: String) -> some View {
-        Label(title, systemImage: symbol)
-            .font(.caption.weight(.medium))
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-private struct SleepStageBar: View {
-    let stages: [SleepStage]
-
-    private var totalMinutes: Int {
-        max(stages.reduce(0) { $0 + $1.minutes }, 1)
-    }
-
-    var body: some View {
-        GeometryReader { proxy in
-            let spacing = CGFloat(max(stages.count - 1, 0)) * 4
-            let availableWidth = max(proxy.size.width - spacing, 0)
-
-            HStack(spacing: 4) {
-                ForEach(stages) { stage in
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(stage.kind.tint)
-                        .frame(
-                            width: max(
-                                6,
-                                availableWidth * CGFloat(stage.minutes) / CGFloat(totalMinutes)
-                            )
-                        )
-                }
-            }
-        }
-        .frame(height: 11)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Sleep stage distribution")
     }
 }
 
 private struct CompactMetricRow: View {
     let metrics: [MetricKind]
-    let entry: FitbitWidgetEntry
+    let snapshot: ResolvedHealthSnapshot
+    let evaluationDate: Date
     let emphasizesMetrics: Bool
 
     var body: some View {
@@ -259,18 +230,29 @@ private struct CompactMetricRow: View {
             ForEach(metrics) { metric in
                 CompactMetricCard(
                     metric: metric,
-                    reading: entry.reading(for: metric),
+                    state: state(for: metric),
+                    evaluationDate: evaluationDate,
                     emphasizesValue: emphasizesMetrics
                 )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+
+    private func state(for metric: MetricKind) -> MetricState<DailyMetricValue> {
+        switch metric {
+        case .steps: snapshot.steps
+        case .restingHeartRate: snapshot.restingHeartRate
+        case .hrv: snapshot.hrv
+        case .sleep: .noData
+        }
+    }
 }
 
 private struct CompactMetricCard: View {
     let metric: MetricKind
-    let reading: MetricReading?
+    let state: MetricState<DailyMetricValue>
+    let evaluationDate: Date
     let emphasizesValue: Bool
 
     var body: some View {
@@ -283,6 +265,7 @@ private struct CompactMetricCard: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
+                    .accessibilityLabel(metric.title)
             }
 
             Spacer(minLength: 2)
@@ -302,42 +285,52 @@ private struct CompactMetricCard: View {
 
     @ViewBuilder
     private var readingContent: some View {
-        if let reading {
-            switch reading.status {
-            case .available:
-                HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text(reading.value ?? "—")
-                        .font(
-                            .system(
-                                size: emphasizesValue ? 27 : 23,
-                                weight: .semibold,
-                                design: .rounded
-                            )
+        switch state {
+        case let .value(value):
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(value.value.formatted(.number.grouping(.automatic)))
+                    .font(
+                        .system(
+                            size: emphasizesValue ? 27 : 23,
+                            weight: .semibold,
+                            design: .rounded
                         )
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.75)
+                    )
+                    .monospacedDigit()
 
-                    Text(reading.unit)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
-                }
-
-                if emphasizesValue {
-                    Text(reading.detail)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-
-            case let .missing(message):
-                MissingReadingView(message: message)
-
-            case .permissionRequired:
-                MissingReadingView(message: "Permission Required")
+                Text(unit)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
             }
-        } else {
-            MissingReadingView(message: "No Recent Data")
+            .lineLimit(1)
+            .minimumScaleFactor(0.65)
+
+            if let sourceDateText = sourceDateText(value) {
+                Text(sourceDateText)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+            } else {
+                Text("Source date")
+                    .font(.caption2)
+                    .hidden()
+                    .accessibilityHidden(true)
+            }
+
+        case .noData:
+            MissingReadingView(message: metric == .steps ? "No Data Today" : "No Recent Data")
+
+        case .permissionRequired:
+            MissingReadingView(message: "Permission Required")
         }
     }
+
+    private var unit: String { metric.unit }
+
+    private func sourceDateText(_ value: DailyMetricValue) -> String? {
+        metricSourceDateText(value, metric: metric, evaluationDate: evaluationDate)
+    }
+
 }
 
 private struct MissingReadingView: View {
@@ -357,77 +350,24 @@ private struct MissingReadingView: View {
     }
 }
 
-private struct MascotMark: View {
-    let size: CGFloat
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.accentColor.opacity(0.72),
-                            Color.accentColor.opacity(0.38)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            VStack(spacing: size * 0.09) {
-                HStack(spacing: size * 0.24) {
-                    Circle().frame(width: size * 0.08, height: size * 0.08)
-                    Circle().frame(width: size * 0.08, height: size * 0.08)
-                }
-                .foregroundStyle(.primary.opacity(0.75))
-
-                MascotSmile()
-                    .stroke(
-                        Color.primary.opacity(0.7),
-                        style: StrokeStyle(lineWidth: max(size * 0.04, 1.5), lineCap: .round)
-                    )
-                    .frame(width: size * 0.38, height: size * 0.15)
-            }
-        }
-        .frame(width: size, height: size)
-        .shadow(color: Color.accentColor.opacity(0.15), radius: size * 0.16, y: size * 0.06)
-        .accessibilityHidden(true)
-    }
-}
-
-private struct MascotSmile: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addQuadCurve(
-            to: CGPoint(x: rect.maxX, y: rect.minY),
-            control: CGPoint(x: rect.midX, y: rect.maxY)
-        )
-        return path
-    }
-}
-
 private struct WidgetFooter: View {
-    let status: WidgetSyncStatus
-    let lastSuccessfulUpdate: Date?
+    let issue: SyncIssue?
+    let isStale: Bool
+    let lastSuccessfulUpdate: Date
 
     var body: some View {
         HStack(spacing: 7) {
-            Image(systemName: status.symbolName)
-                .foregroundStyle(status.tint)
+            Image(systemName: symbolName)
+                .foregroundStyle(tint)
 
-            if let title = status.title {
+            ForEach(statusTitles, id: \.self) { title in
                 Text(title)
                     .fontWeight(.semibold)
 
                 Text("·")
             }
 
-            if let lastSuccessfulUpdate {
-                Text("Updated")
-                Text(lastSuccessfulUpdate, style: .relative)
-                    .monospacedDigit()
-            }
+            UpdatedAgeText(lastSuccessfulUpdate: lastSuccessfulUpdate)
 
             Spacer()
 
@@ -437,47 +377,116 @@ private struct WidgetFooter: View {
         .font(.caption2)
         .foregroundStyle(.secondary)
         .lineLimit(1)
-        .minimumScaleFactor(0.8)
+        .minimumScaleFactor(0.75)
         .accessibilityElement(children: .combine)
     }
+
+    private var statusTitles: [String] {
+        freshnessTitles(issue: issue, isStale: isStale)
+    }
+
+    private var symbolName: String {
+        if let issue { return issue.symbolName }
+        return isStale ? "clock.badge.exclamationmark.fill" : "checkmark.circle.fill"
+    }
+
+    private var tint: Color {
+        if let issue { return issue.tint }
+        return isStale ? .orange : .green
+    }
+
 }
 
 private struct InitialWidgetView: View {
-    let message: String
+    let content: WidgetContent
 
     var body: some View {
-        HStack(spacing: 18) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(Color.accentColor.opacity(0.1))
-
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
                 Image(systemName: "heart.text.square.fill")
-                    .font(.system(size: 54, weight: .medium))
                     .foregroundStyle(.tint)
+
+                Text("Fitbit Widget")
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                MascotMark(size: 44)
             }
-            .frame(width: 88, height: 88)
-            .accessibilityHidden(true)
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
 
-            VStack(alignment: .leading, spacing: 10) {
-                Text(message)
-                    .font(.system(.title, design: .rounded, weight: .semibold))
+            Spacer(minLength: 18)
 
-                Text("Open the companion app to connect your account and prepare the widget.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .top, spacing: 16) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color.accentColor.opacity(0.1))
 
-                Label("Open Fitbit Widget", systemImage: "arrow.up.forward.app")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.tint)
-                    .padding(.top, 4)
+                    Image(systemName: statusSymbolName)
+                        .font(.system(size: 28, weight: .medium))
+                        .foregroundStyle(.tint)
+                }
+                .frame(width: 62, height: 62)
+                .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 9) {
+                    Text(title)
+                        .font(.system(.title2, design: .rounded, weight: .semibold))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(subtitle)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Label("Open App", systemImage: "arrow.up.forward.app")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.tint)
+                        .padding(.top, 3)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
             }
 
-            Spacer()
-
-            MascotMark(size: 72)
+            Spacer(minLength: 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
+    }
+
+    private var title: String {
+        switch content {
+        case .unconnected: "Connect Google Health"
+        case .accountNotLinked: "Google Health Profile Required"
+        case .initialSyncFailed: "Unable to Load Data"
+        case .data: "Open the App to Get Started"
+        }
+    }
+
+    private var subtitle: String {
+        switch content {
+        case .unconnected:
+            "Open the app to connect your account and prepare the Widget."
+        case .accountNotLinked:
+            "Set up Google Health on a compatible phone, then return to the app."
+        case .initialSyncFailed:
+            "Open the app to try loading your health data again."
+        case .data:
+            "Open the app to prepare the Widget."
+        }
+    }
+
+    private var statusSymbolName: String {
+        switch content {
+        case .unconnected: "link.badge.plus"
+        case .accountNotLinked: "person.crop.circle.badge.exclamationmark"
+        case .initialSyncFailed: "arrow.clockwise.circle"
+        case .data: "heart.text.square.fill"
+        }
     }
 }
 
@@ -499,40 +508,6 @@ private struct WidgetBackground: View {
     }
 }
 
-private extension MetricKind {
-    var tint: Color {
-        switch self {
-        case .steps: .green
-        case .sleep: .indigo
-        case .restingHeartRate: .red
-        case .hrv: .cyan
-        }
-    }
-}
-
-private extension SleepStageKind {
-    var tint: Color {
-        switch self {
-        case .awake: .orange
-        case .light: .blue
-        case .rem: .purple
-        case .deep: .indigo
-        }
-    }
-}
-
-private extension WidgetSyncStatus {
-    var tint: Color {
-        switch self {
-        case .current: .green
-        case .stale: .orange
-        case .offline: .orange
-        case .updateFailed: .red
-        case .reconnectRequired: .red
-        }
-    }
-}
-
 struct FitbitWidgetEntryView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
@@ -540,13 +515,19 @@ struct FitbitWidgetEntryView_Previews: PreviewProvider {
             preview(.missingMetric, name: "2 · Missing Metric")
             preview(.stale, name: "3 · Stale")
             preview(.offline, name: "4 · Offline Cache")
-            preview(.updateFailed, name: "5 · Update Failed")
-            preview(.reconnectRequired, name: "6 · Reconnect Required")
-            preview(.initial, name: "7 · Initial")
+            preview(.offlineAndStale, name: "5 · Offline + Stale")
+            preview(.updateFailed, name: "6 · Update Failed")
+            preview(.reconnectRequired, name: "7 · Reconnect Required")
+            preview(.unconnected, name: "8 · Unconnected")
+            preview(.accountNotLinked, name: "9 · Account Not Linked")
+            preview(.initialSyncFailed, name: "10 · Initial Sync Failed")
             preview(.permissionRequired, name: "Permission Required")
+            preview(.sleepPermissionRequired, name: "Sleep · Permission Required")
             preview(.missingSleep, name: "Sleep · Missing")
             preview(.sleepStagesProcessing, name: "Sleep · Stages Processing")
             preview(.sleepStagesUnavailable, name: "Sleep · Stages Unavailable")
+            preview(.zeroSteps, name: "Steps · Zero")
+            preview(.worstCase, name: "Worst Case Values")
             preview(.sleepAndSteps, name: "Reflow · Sleep + Steps")
             preview(.compactOnly, name: "Reflow · No Sleep")
             preview(.sleepOnly, name: "Reflow · Sleep Only")

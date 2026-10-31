@@ -2,3 +2,6 @@
 DerivedData/
 *.xcuserstate
 xcuserdata/
+
+# Local OAuth application configuration; never commit actual values.
+Config/GoogleHealth.local.xcconfig

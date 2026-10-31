@@ -1,0 +1,6 @@
+// Shared defaults only. Do not paste client credentials in this tracked file.
+// Edit Config/GoogleHealth.local.xcconfig (ignored by Git) to supply the secret.
+// The value is bundled application configuration, not confidential storage.
+GOOGLE_HEALTH_OAUTH_CLIENT_ID =
+GOOGLE_HEALTH_OAUTH_CLIENT_SECRET =
+#include? "GoogleHealth.local.xcconfig"

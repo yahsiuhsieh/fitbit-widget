@@ -1,280 +1,205 @@
 import Foundation
 import WidgetKit
 
-enum MetricKind: String, CaseIterable, Identifiable {
-    case steps
-    case sleep
-    case restingHeartRate
-    case hrv
-
-    var id: Self { self }
-
-    var title: String {
-        switch self {
-        case .steps: "Steps"
-        case .sleep: "Sleep"
-        case .restingHeartRate: "Resting Heart Rate"
-        case .hrv: "HRV"
-        }
-    }
-
-    var symbolName: String {
-        switch self {
-        case .steps: "figure.walk"
-        case .sleep: "moon.stars.fill"
-        case .restingHeartRate: "heart.fill"
-        case .hrv: "waveform.path.ecg"
-        }
-    }
-}
-
-enum ReadingStatus: Equatable {
-    case available
-    case missing(message: String)
-    case permissionRequired
-}
-
-struct MetricReading: Equatable {
-    let kind: MetricKind
-    let value: String?
-    let unit: String
-    let detail: String
-    let status: ReadingStatus
-
-    static func available(
-        _ kind: MetricKind,
-        value: String,
-        unit: String,
-        detail: String = "Today"
-    ) -> Self {
-        Self(kind: kind, value: value, unit: unit, detail: detail, status: .available)
-    }
-
-    static func missing(_ kind: MetricKind, message: String = "No Recent Data") -> Self {
-        Self(kind: kind, value: nil, unit: "", detail: message, status: .missing(message: message))
-    }
-
-    static func permissionRequired(_ kind: MetricKind) -> Self {
-        Self(
-            kind: kind,
-            value: nil,
-            unit: "",
-            detail: "Permission Required",
-            status: .permissionRequired
-        )
-    }
-}
-
-enum SleepStageKind: String, CaseIterable, Identifiable {
-    case awake
-    case light
-    case rem
-    case deep
-
-    var id: Self { self }
-
-    var title: String {
-        rawValue.capitalized
-    }
-}
-
-struct SleepStage: Identifiable, Equatable {
-    let kind: SleepStageKind
-    let minutes: Int
-
-    var id: SleepStageKind { kind }
-}
-
-enum SleepStageStatus: Equatable {
-    case available
-    case processing
-    case unavailable
-}
-
-struct SleepSnapshot: Equatable {
-    let totalAsleepMinutes: Int
-    let bedtime: Date
-    let wakeTime: Date
-    let stages: [SleepStage]
-    let stageStatus: SleepStageStatus
-}
-
-enum WidgetSyncStatus: Equatable {
-    case current
-    case stale
-    case offline
-    case updateFailed
-    case reconnectRequired
-
-    var title: String? {
-        switch self {
-        case .current: nil
-        case .stale: "Stale"
-        case .offline: "Offline"
-        case .updateFailed: "Update Failed"
-        case .reconnectRequired: "Reconnect in App"
-        }
-    }
-
-    var symbolName: String {
-        switch self {
-        case .current: "checkmark.circle.fill"
-        case .stale: "clock.badge.exclamationmark.fill"
-        case .offline: "wifi.slash"
-        case .updateFailed: "exclamationmark.triangle.fill"
-        case .reconnectRequired: "person.crop.circle.badge.exclamationmark.fill"
-        }
-    }
-}
-
-struct FitbitWidgetEntry: TimelineEntry {
+struct FitbitWidgetEntry: TimelineEntry, Sendable {
     let date: Date
-    let selectedMetrics: [MetricKind]
-    let readings: [MetricReading]
-    let sleep: SleepSnapshot?
-    let syncStatus: WidgetSyncStatus
-    let lastSuccessfulUpdate: Date?
-    let initialMessage: String?
-
-    var isInitial: Bool { initialMessage != nil }
-
-    func reading(for kind: MetricKind) -> MetricReading? {
-        readings.first { $0.kind == kind }
-    }
+    let state: SharedWidgetState
 }
 
 extension FitbitWidgetEntry {
-    static let normal = makeEntry()
+    static var normal: Self { makeEntry() }
 
-    static let missingMetric = makeEntry(
-        readings: [
-            .available(.steps, value: "7,842", unit: "steps"),
-            .available(.restingHeartRate, value: "61", unit: "bpm"),
-            .missing(.hrv)
-        ]
-    )
+    static var missingMetric: Self {
+        makeEntry(hrv: .noData)
+    }
 
-    static let stale = makeEntry(
-        syncStatus: .stale,
-        updatedMinutesAgo: 8 * 60
-    )
+    static var stale: Self {
+        makeEntry(updatedMinutesAgo: 8 * 60)
+    }
 
-    static let offline = makeEntry(
-        syncStatus: .offline,
-        updatedMinutesAgo: 46
-    )
+    static var offline: Self {
+        makeEntry(lastSyncIssue: .offline, updatedMinutesAgo: 46)
+    }
 
-    static let updateFailed = makeEntry(
-        syncStatus: .updateFailed,
-        updatedMinutesAgo: 128
-    )
+    static var offlineAndStale: Self {
+        makeEntry(lastSyncIssue: .offline, updatedMinutesAgo: 8 * 60)
+    }
 
-    static let reconnectRequired = makeEntry(
-        syncStatus: .reconnectRequired,
-        updatedMinutesAgo: 132
-    )
+    static var updateFailed: Self {
+        makeEntry(lastSyncIssue: .updateFailed, updatedMinutesAgo: 128)
+    }
 
-    static let permissionRequired = makeEntry(
-        readings: [
-            .available(.steps, value: "7,842", unit: "steps"),
-            .available(.restingHeartRate, value: "61", unit: "bpm"),
-            .permissionRequired(.hrv)
-        ]
-    )
+    static var reconnectRequired: Self {
+        makeEntry(lastSyncIssue: .reconnectRequired, updatedMinutesAgo: 132)
+    }
 
-    static let missingSleep = makeEntry(sleep: nil)
+    static var permissionRequired: Self {
+        makeEntry(hrv: .permissionRequired)
+    }
 
-    static let sleepStagesProcessing = makeEntry(
-        sleep: makeSleep(stageStatus: .processing)
-    )
+    static var sleepPermissionRequired: Self {
+        makeEntry(sleep: .permissionRequired)
+    }
 
-    static let sleepStagesUnavailable = makeEntry(
-        sleep: makeSleep(stageStatus: .unavailable)
-    )
+    static var missingSleep: Self {
+        makeEntry(sleep: .noData)
+    }
 
-    static let initial = FitbitWidgetEntry(
-        date: Date(),
-        selectedMetrics: MetricKind.allCases,
-        readings: [],
-        sleep: nil,
-        syncStatus: .current,
-        lastSuccessfulUpdate: nil,
-        initialMessage: "Connect Google Health in App"
-    )
+    static var sleepStagesProcessing: Self {
+        makeEntry(sleep: .value(makeSleep(stageState: .processing)))
+    }
 
-    static let sleepAndSteps = makeEntry(
-        selectedMetrics: [.steps, .sleep]
-    )
+    static var sleepStagesUnavailable: Self {
+        makeEntry(sleep: .value(makeSleep(stageState: .unavailable)))
+    }
 
-    static let compactOnly = makeEntry(
-        selectedMetrics: [.steps, .restingHeartRate, .hrv]
-    )
-
-    static let sleepOnly = makeEntry(
-        selectedMetrics: [.sleep]
-    )
-
-    private static func makeEntry(
-        selectedMetrics: [MetricKind] = MetricKind.allCases,
-        readings: [MetricReading] = defaultReadings,
-        sleep: SleepSnapshot? = defaultSleep,
-        syncStatus: WidgetSyncStatus = .current,
-        updatedMinutesAgo: Int = 24
-    ) -> FitbitWidgetEntry {
-        FitbitWidgetEntry(
-            date: Date(),
-            selectedMetrics: MetricKind.allCases.filter { selectedMetrics.contains($0) },
-            readings: readings,
-            sleep: sleep,
-            syncStatus: syncStatus,
-            lastSuccessfulUpdate: Calendar.current.date(
-                byAdding: .minute,
-                value: -updatedMinutesAgo,
-                to: Date()
-            ),
-            initialMessage: nil
+    static var zeroSteps: Self {
+        let now = Date()
+        return makeEntry(
+            date: now,
+            steps: .value(DailyMetricValue(
+                value: 0,
+                sourceDay: LocalDay(date: now, calendar: SharedConfiguration.localCalendar)
+            ))
         )
     }
 
-    private static let defaultReadings: [MetricReading] = [
-        .available(.steps, value: "7,842", unit: "steps"),
-        .available(.restingHeartRate, value: "61", unit: "bpm"),
-        .available(.hrv, value: "48", unit: "ms")
-    ]
-
-    private static var defaultSleep: SleepSnapshot {
-        makeSleep(stageStatus: .available)
+    static var unconnected: Self {
+        Self(date: Date(), state: .initial)
     }
 
-    private static func makeSleep(stageStatus: SleepStageStatus) -> SleepSnapshot {
-        let calendar = Calendar.autoupdatingCurrent
+    static var accountNotLinked: Self {
+        Self(
+            date: Date(),
+            state: SharedWidgetState(selection: .all, content: .accountNotLinked)
+        )
+    }
+
+    static var initialSyncFailed: Self {
+        Self(
+            date: Date(),
+            state: SharedWidgetState(selection: .all, content: .initialSyncFailed)
+        )
+    }
+
+    static var sleepAndSteps: Self {
+        makeEntry(selection: [.steps, .sleep])
+    }
+
+    static var compactOnly: Self {
+        makeEntry(selection: [.steps, .restingHeartRate, .hrv])
+    }
+
+    static var sleepOnly: Self {
+        makeEntry(selection: [.sleep])
+    }
+
+    static var worstCase: Self {
         let now = Date()
-        let startOfToday = calendar.startOfDay(for: now)
+        let calendar = SharedConfiguration.localCalendar
+        let priorDay = calendar.date(byAdding: .day, value: -3, to: now) ?? now
+
+        return makeEntry(
+            date: now,
+            steps: .value(DailyMetricValue(
+                value: 23_456,
+                sourceDay: LocalDay(date: now, calendar: calendar)
+            )),
+            sleep: .value(makeSleep(
+                minutesAsleep: 10 * 60 + 45,
+                stageState: .available(SleepStages(
+                    awakeMinutes: 0,
+                    lightMinutes: 6 * 60 + 20,
+                    remMinutes: 2 * 60 + 15,
+                    deepMinutes: 2 * 60 + 10
+                )),
+                referenceDate: now
+            )),
+            restingHeartRate: .value(DailyMetricValue(
+                value: 112,
+                sourceDay: LocalDay(date: priorDay, calendar: calendar)
+            )),
+            hrv: .value(DailyMetricValue(
+                value: 123,
+                sourceDay: LocalDay(date: priorDay, calendar: calendar)
+            ))
+        )
+    }
+
+    private static func makeEntry(
+        date: Date = Date(),
+        selection: Set<MetricKind> = Set(MetricKind.allCases),
+        steps: MetricState<DailyMetricValue>? = nil,
+        sleep: MetricState<SleepSession>? = nil,
+        restingHeartRate: MetricState<DailyMetricValue>? = nil,
+        hrv: MetricState<DailyMetricValue>? = nil,
+        lastSyncIssue: SyncIssue? = nil,
+        updatedMinutesAgo: Int = 24
+    ) -> Self {
+        let calendar = SharedConfiguration.localCalendar
+        let today = LocalDay(date: date, calendar: calendar)
+        let snapshot = HealthSnapshot(
+            steps: steps ?? .value(DailyMetricValue(value: 7_842, sourceDay: today)),
+            sleep: sleep ?? .value(makeSleep(referenceDate: date)),
+            restingHeartRate: restingHeartRate ?? .value(DailyMetricValue(value: 61, sourceDay: today)),
+            hrv: hrv ?? .value(DailyMetricValue(value: 48, sourceDay: today)),
+            lastSuccessfulUpdate: calendar.date(
+                byAdding: .minute,
+                value: -updatedMinutesAgo,
+                to: date
+            ) ?? date
+        )
+
+        return Self(
+            date: date,
+            state: SharedWidgetState(
+                selection: MetricSelection(selection) ?? .all,
+                content: .data(WidgetData(
+                    snapshot: snapshot,
+                    lastSyncIssue: lastSyncIssue
+                )),
+                permissions: .all
+            )
+        )
+    }
+
+    private static func makeSleep(
+        minutesAsleep: Int = 4 * 60 + 56,
+        stageState: SleepStageState = .available(SleepStages(
+            awakeMinutes: 45,
+            lightMinutes: 3 * 60 + 27,
+            remMinutes: 37,
+            deepMinutes: 52
+        )),
+        referenceDate: Date = Date()
+    ) -> SleepSession {
+        let calendar = SharedConfiguration.localCalendar
+        let startOfToday = calendar.startOfDay(for: referenceDate)
         let candidateWake = calendar.date(
             byAdding: .minute,
             value: 8 * 60 + 2,
             to: startOfToday
-        ) ?? now
-        let wakeTime = candidateWake <= now
+        ) ?? referenceDate
+        let wakeTime = candidateWake <= referenceDate
             ? candidateWake
             : (calendar.date(byAdding: .day, value: -1, to: candidateWake) ?? candidateWake)
         let bedtime = calendar.date(
             byAdding: .minute,
-            value: -(5 * 60 + 41),
+            value: -(minutesAsleep + 45),
             to: wakeTime
         ) ?? wakeTime
 
-        return SleepSnapshot(
-            totalAsleepMinutes: 4 * 60 + 56,
-            bedtime: bedtime,
-            wakeTime: wakeTime,
-            stages: [
-                SleepStage(kind: .awake, minutes: 45),
-                SleepStage(kind: .light, minutes: 3 * 60 + 27),
-                SleepStage(kind: .rem, minutes: 37),
-                SleepStage(kind: .deep, minutes: 52)
-            ],
-            stageStatus: stageStatus
+        return SleepSession(
+            minutesAsleep: minutesAsleep,
+            start: ZonedInstant(
+                instant: bedtime,
+                utcOffsetSeconds: calendar.timeZone.secondsFromGMT(for: bedtime)
+            ),
+            end: ZonedInstant(
+                instant: wakeTime,
+                utcOffsetSeconds: calendar.timeZone.secondsFromGMT(for: wakeTime)
+            ),
+            stages: stageState
         )
     }
 }
