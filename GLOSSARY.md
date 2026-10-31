@@ -1,6 +1,6 @@
 # Fitbit Mac Widget
 
-Canonical product language for the macOS widget and its companion app.
+Canonical product language for the macOS Widget, Menu Bar, and Companion App.
 
 ## Language
 
@@ -12,8 +12,12 @@ _Avoid_: Dashboard, always-on-top window
 One placement of the Widget on a Mac desktop. Multiple instances may exist, but they do not have independent settings.
 _Avoid_: Custom widget, widget profile
 
+**Menu Bar**:
+The optional menu bar icon and compact health popover showing the same Selected Metrics as the Widget. It can be used without a Widget Instance while the Companion App is running.
+_Avoid_: Separate app, dashboard, menu bar widget
+
 **Companion App**:
-The minimal macOS app through which a user connects Google Health and manages the shared Widget settings.
+The minimal macOS app through which a user connects Google Health, manages shared settings, and optionally keeps the Menu Bar available.
 _Avoid_: Dashboard
 
 **Private Beta**:
@@ -37,7 +41,7 @@ A Google account that completed OAuth but has no usable Google Health profile. I
 _Avoid_: Empty account, sync failure
 
 **Selected Metric**:
-One of up to four Google Health measurements the user chooses for every Widget Instance. Selected Metrics use the fixed order Steps, Sleep, Resting Heart Rate, then HRV.
+One of up to four Google Health measurements the user chooses for the Widget and Menu Bar together. Selected Metrics use the fixed settings order Steps, Sleep, Resting Heart Rate, then HRV; both surfaces display Sleep first when selected.
 _Avoid_: Per-widget metric, reordered metric
 
 **Last Successful Update**:
@@ -45,7 +49,7 @@ The time the Mac last completed every required request and committed a complete 
 _Avoid_: Device sync time, live status
 
 **Stale Snapshot**:
-A cached Widget snapshot whose Last Successful Update is more than six hours old. It may still be displayed with a warning, but it is not presented as current.
+A cached Widget snapshot whose Last Successful Update is more than six hours old at the time it is evaluated. Staleness is time-derived and can coexist with an offline, failed-update, or reconnect condition.
 _Avoid_: Missing data, expired data
 
 **Missing Data**:
